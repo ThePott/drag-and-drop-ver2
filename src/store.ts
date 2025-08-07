@@ -1,17 +1,17 @@
 import { create } from "zustand";
 import { dummyData } from "./dummyData";
 
-export type Type = "TODO" | "IN_PROGRESS" | "DONE"
+export type Completed = "TODO" | "IN_PROGRESS" | "DONE"
 
 export interface Kanban {
     id: number
-    type: Type
+    completed: Completed
     title: string
 }
 
 interface KanbanState {
     kanbanArray: Kanban[]
-    updateBoardType: (id: number, type: Type) => void
+    updateBoardCompleted: (id: number, completed: Completed) => void
     reorderKanbanArray: (kanbanArray: Kanban[]) => void
 }
 
@@ -21,11 +21,11 @@ export const useKanbanStore = create<KanbanState>()((set) => ({
 
     // 항목의 보드 타입 변경 액션 (드래그 앤 드롭으로 다른 보드로 이동할 때 사용)
     // id: 변경할 항목의 고유 ID
-    // newType: 새 보드 타입 ('todo', 'inprogress', 'done' 중 하나)
-    updateBoardType(id, type) {
+    // newCompleted: 새 보드 타입 ('todo', 'inprogress', 'done' 중 하나)
+    updateBoardCompleted(id, completed) {
         set(
             (state) => {
-                return { kanbanArray: state.kanbanArray.map((item) => (item.id === id ? { ...item, type: type } : item)), }
+                return { kanbanArray: state.kanbanArray.map((item) => (item.id === id ? { ...item, completed } : item)), }
             }
         )
     },

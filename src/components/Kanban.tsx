@@ -1,7 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable';
 import type { Kanban } from '../store';
 
-export const Knaban = ({ id, kanban }: { id: number, kanban: Kanban }) => {
+export const Knaban = ({ kanban }: { kanban: Kanban }) => {
   // useSortable 훅으로 드래그 가능한 항목 설정
   const {
     attributes,
@@ -11,9 +11,10 @@ export const Knaban = ({ id, kanban }: { id: number, kanban: Kanban }) => {
     transition,
     isDragging
   } = useSortable({
-    id,
+    id: kanban.id,
     data: {
-      type: "KANBAN"
+      type: "KANBAN",
+      completed: kanban.completed
     }
   });
 

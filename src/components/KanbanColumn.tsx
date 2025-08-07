@@ -1,18 +1,17 @@
 import { useDroppable } from '@dnd-kit/core';
-import { useKanbanStore, type Type } from '../store';
+import { useKanbanStore, type Completed } from '../store';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Knaban } from './Kanban';
 
-export const KanbanColumn = ({ type }: { type: Type }) => {
+export const KanbanColumn = ({ completed }: { completed: Completed }) => {
     const kanbanArray = useKanbanStore((state) => state.kanbanArray)
-    const filteredKanbanArray = kanbanArray.filter((kanban) => kanban.type === type)
-
+    const filteredKanbanArray = kanbanArray.filter((kanban) => kanban.completed === completed)
+    // debugger
     const { setNodeRef, isOver } = useDroppable({
-        id: type,
+        id: completed,
         data: {
-            type,
-            // ---- 데이터 안의 "타입" 키에만 자동으로 반응하나? 모르겠다 -----
-            accepts: ['TODO', 'IN_PROGRESS', 'DONE']
+            type: "COLUMN",
+            completed
         }
     });
 
@@ -24,7 +23,7 @@ export const KanbanColumn = ({ type }: { type: Type }) => {
             {/* id array로 넘기지 않고 그냥 통으로 넘긴다? 그럼 참조 주소 배열로 여기나? */}
             <SortableContext items={filteredKanbanArray} strategy={verticalListSortingStrategy}>
                 {filteredKanbanArray.map((kanban) => (
-                    <Knaban key={kanban.id} id={kanban.id} kanban={kanban} />
+                    <Knaban key={kanban.id} kanban={kanban} />
                 ))}
             </SortableContext>
             {/* 보드 내용 */}

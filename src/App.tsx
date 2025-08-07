@@ -1,12 +1,12 @@
-import { DndContext, DragOverlay, type DragEndEvent, type DragOverEvent, type DragStartEvent, type UniqueIdentifier } from "@dnd-kit/core";
-import { useState } from "react";
-import { useKanbanStore } from "./store";
+import { DndContext, DragOverlay, type DragEndEvent, type DragOverEvent, type DragStartEvent } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
+import { useState } from "react";
 import { KanbanColumn } from "./components/KanbanColumn";
+import { useKanbanStore } from "./store";
 
 const App = () => {
   const [activeId, setActiveId] = useState<number | null>(null);
-  const updateBoardType = useKanbanStore((state) => state.updateBoardType)
+  const updateBoardCompleted = useKanbanStore((state) => state.updateBoardCompleted)
   const kanbanArray = useKanbanStore((state) => state.kanbanArray)
   const reorderKanbanArray = useKanbanStore((state) => state.reorderKanbanArray)
 
@@ -28,7 +28,8 @@ const App = () => {
     if (!active || !over) return;
     if (active.id === over.id) return
 
-    
+    const overData = over.data?.current
+    if (!overData) { return }
 
     const activeItem = kanbanArray.find((kanban) => kanban.id === Number(active.id));
     if (!activeItem) {
@@ -38,10 +39,18 @@ const App = () => {
 
     // 다른 보드 위로 드래그 중일 때
     // 시각적 피드백을 위해 임시로 타입 변경 (실제 데이터는 handleDragEnd에서 변경됨)
-    if (over.data?.current?.type
-      && activeItem.type !== over.data.current.type
-      && active.id !== over.id) {
-      updateBoardType(Number(active.id), over.data.current.type);
+    switch (overData.type) {
+      case "KANBAN":
+        if (activeItem.completed === overData.completed) { break }
+        updateBoardCompleted(Number(active.id), overData.completed);
+        break
+      case "COLUMN":
+        if (activeItem.completed === overData.completed) { break }
+        updateBoardCompleted(Number(active.id), overData.completed);
+        break
+      default:
+        console.log("---- should not fall back here")
+        debugger
     }
   };
 
@@ -63,9 +72,9 @@ const App = () => {
 
     // 다른 보드로 항목 이동 (예: todo -> inprogress)
     // over.data?.current?.type은 드롭된 보드의 타입을 나타냄 (useDroppable에서 data로 설정한 값)
-    if (over.data?.current?.type && activeItem.type !== over.data.current.type) {
+    if (over.data?.current?.completed && activeItem.completed !== over.data.current.completed) {
       // 항목의 타입을 변경하여 다른 보드로 이동
-      updateBoardType(Number(active.id), over.data.current.type);
+      updateBoardCompleted(Number(active.id), over.data.current.completed);
     } else if (over.id !== active.id) {
       // 동일 보드 내에서 항목 순서 변경
       // 드래그한 항목과 드롭 위치 항목의 인덱스 찾기
@@ -93,9 +102,9 @@ const App = () => {
       onDragOver={handleDragOver}
     >
       <div className="grid grid-cols-3 gap-3">
-        <KanbanColumn type="TODO" />
-        <KanbanColumn type="IN_PROGRESS" />
-        <KanbanColumn type="DONE" />
+        <KanbanColumn completed="TODO" />
+        <KanbanColumn completed="IN_PROGRESS" />
+        <KanbanColumn completed="DONE" />
       </div>
       {/* DragOverlay: 드래그 중인 항목을 시각적으로 표시 */}
       <DragOverlay>
@@ -104,12 +113,12 @@ const App = () => {
 
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold">{activeItem.title}</h3>
-              {activeItem.type === 'TODO'
+              {activeItem.completed === 'TODO'
                 && <div className="animate-pulse w-2 h-2 rounded-full bg-green-500"></div>}
-              {activeItem.type === 'IN_PROGRESS'
+              {activeItem.completed === 'IN_PROGRESS'
                 && <div className="animate-pulse w-2 h-2 rounded-full bg-amber-500"></div>
               }
-              {activeItem.type === 'DONE'
+              {activeItem.completed === 'DONE'
                 && <div className="animate-pulse w-2 h-2 rounded-full bg-red-500"></div>}
             </div>
 
