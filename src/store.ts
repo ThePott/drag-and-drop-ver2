@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { dummyData } from "./dummyData";
 
 export type Type = "TODO" | "IN_PROGRESS" | "DONE"
 
@@ -16,7 +17,7 @@ interface KanbanState {
 
 export const useKanbanStore = create<KanbanState>()((set) => ({
     // 기본 상태
-    kanbanArray: [], // 모든 보드 항목을 저장하는 배열
+    kanbanArray: dummyData, // 모든 보드 항목을 저장하는 배열
 
     // 항목의 보드 타입 변경 액션 (드래그 앤 드롭으로 다른 보드로 이동할 때 사용)
     // id: 변경할 항목의 고유 ID
