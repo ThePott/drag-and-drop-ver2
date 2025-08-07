@@ -15,8 +15,8 @@ This is an app to demonstrate
 ## 📦 Installation
 In the project directory, you can run:
 ```bash
-git clone ----https://github.com/ThePott/animal-suki-suki----
-cd ----animal-suki-suki----
+git clone https://github.com/ThePott/drag-and-drop-ver2
+cd drag-and-drop-ver2
 npm install
 ```
 ## ✅ Requirements
