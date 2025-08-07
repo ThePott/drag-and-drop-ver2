@@ -1,4 +1,4 @@
-import { DndContext, type DragEndEvent, type DragStartEvent, type UniqueIdentifier } from "@dnd-kit/core";
+import { DndContext, DragOverlay, type DragEndEvent, type DragOverEvent, type DragStartEvent, type UniqueIdentifier } from "@dnd-kit/core";
 import { useState } from "react";
 import { useKanbanStore } from "./store";
 import { arrayMove } from "@dnd-kit/sortable";
@@ -18,6 +18,31 @@ const App = () => {
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
     setActiveId(Number(active.id));
+  }
+
+  // 드래그 오버 핸들러
+  // 항목이 드래그되면서 다른 항목이나 영역 위에 있을 때 지속적으로 호출됩니다
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
+
+    if (!active || !over) return;
+    if (active.id === over.id) return
+
+    
+
+    const activeItem = kanbanArray.find((kanban) => kanban.id === Number(active.id));
+    if (!activeItem) {
+      debugger
+      return
+    }
+
+    // 다른 보드 위로 드래그 중일 때
+    // 시각적 피드백을 위해 임시로 타입 변경 (실제 데이터는 handleDragEnd에서 변경됨)
+    if (over.data?.current?.type
+      && activeItem.type !== over.data.current.type
+      && active.id !== over.id) {
+      updateBoardType(Number(active.id), over.data.current.type);
+    }
   };
 
   // 드래그 종료 시 호출
@@ -57,18 +82,42 @@ const App = () => {
     }
 
     setActiveId(null);
-  };
+  }
+
+
 
   return (
     <DndContext
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      onDragOver={handleDragOver}
     >
       <div className="grid grid-cols-3 gap-3">
-        <KanbanColumn type="TODO"/>
-        <KanbanColumn type="IN_PROGRESS"/>
-        <KanbanColumn type="DONE"/>
+        <KanbanColumn type="TODO" />
+        <KanbanColumn type="IN_PROGRESS" />
+        <KanbanColumn type="DONE" />
       </div>
+      {/* DragOverlay: 드래그 중인 항목을 시각적으로 표시 */}
+      <DragOverlay>
+        {activeId && activeItem && (
+          <div className="bg-white shadow-xl rounded-md p-4 w-full">
+
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">{activeItem.title}</h3>
+              {activeItem.type === 'TODO'
+                && <div className="animate-pulse w-2 h-2 rounded-full bg-green-500"></div>}
+              {activeItem.type === 'IN_PROGRESS'
+                && <div className="animate-pulse w-2 h-2 rounded-full bg-amber-500"></div>
+              }
+              {activeItem.type === 'DONE'
+                && <div className="animate-pulse w-2 h-2 rounded-full bg-red-500"></div>}
+            </div>
+
+            {/* <p className="text-sm text-gray-500">{activeItem.created_at}</p> */}
+
+          </div>
+        )}
+      </DragOverlay>
     </DndContext>
   );
 }

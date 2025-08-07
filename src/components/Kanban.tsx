@@ -1,7 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable';
 import type { Kanban } from '../store';
 
-export const Knaban = ({ id, kanban }: {id: number, kanban: Kanban}) => {
+export const Knaban = ({ id, kanban }: { id: number, kanban: Kanban }) => {
   // useSortable 훅으로 드래그 가능한 항목 설정
   const {
     attributes,
@@ -10,7 +10,12 @@ export const Knaban = ({ id, kanban }: {id: number, kanban: Kanban}) => {
     transform,
     transition,
     isDragging
-  } = useSortable({ id });
+  } = useSortable({
+    id,
+    data: {
+      type: "KANBAN"
+    }
+  });
 
   // 드래그 중일 때의 스타일
   const style = {
@@ -26,7 +31,7 @@ export const Knaban = ({ id, kanban }: {id: number, kanban: Kanban}) => {
       style={style}
       {...attributes}
       {...listeners}
-      className="w-[200px] h-[200px] bg-amber-300"
+      className="w-[200px] h-[200px] bg-amber-300 justify-self-center"
     >
       {/* 항목 내용 */}
       <p>{kanban.title}</p>
